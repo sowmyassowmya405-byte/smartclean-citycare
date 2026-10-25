@@ -1,0 +1,113 @@
+/* ===== Basic settings ===== */
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f3;
+  margin: 0;
+  color: #12263a;
+}
+
+/* ===== Top menu ===== */
+.menu {
+  background: #12263a;
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  border-bottom: 4px solid #f2b705;   /* yellow line */
+}
+
+.menu button {
+  background: none;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.menu button:hover {
+  background: #2c4a66;
+  border-radius: 6px;
+}
+
+/* ===== Main area ===== */
+.container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 0 15px;
+}
+
+/* Every page is hidden. JavaScript shows only one. */
+.page {
+  display: none;
+}
+
+/* White card used for forms */
+.box {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  max-width: 420px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== Form items ===== */
+input, select, textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+textarea {
+  height: 90px;
+}
+
+.box button, .big {
+  background: #f2b705;      /* yellow button */
+  color: #12263a;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.big {
+  padding: 14px 28px;
+  margin-top: 10px;
+}
+
+.hint {
+  color: gray;
+  font-size: 14px;
+}
+
+/* ===== Complaint cards ===== */
+.card {
+  background: white;
+  padding: 15px;
+  margin: 12px 0;
+  border-radius: 10px;
+  border-left: 6px solid #0f766e;
+}
+
+/* Status colours */
+.status {
+  padding: 3px 10px;
+  border-radius: 15px;
+  font-weight: bold;
+  font-size: 14px;
+}
+.Pending      { background: #f9e1dc; color: #c8412b; }
+.Assigned     { background: #dce8f6; color: #2563a8; }
+.InProgress   { background: #fff1c2; color: #7a5a00; }
+.Resolved     { background: #ddf0df; color: #2f7d3c; }
+
+h1 { font-size: 38px; }

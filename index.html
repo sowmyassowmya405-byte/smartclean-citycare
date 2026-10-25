@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartClean – CityCare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12263a; --paper:#f6f7f3; --card:#ffffff; --line:#dfe3dc;
+    --sign:#f2b705;            /* civic signage yellow */
+    --teal:#0f766e; --teal-soft:#d9efeb;
+    --red:#c8412b; --red-soft:#f9e1dc;
+    --blue:#2563a8; --blue-soft:#dce8f6;
+    --green:#2f7d3c; --green-soft:#ddf0df;
+    --muted:#5b6b7a;
+    --head:"Bricolage Grotesque","Trebuchet MS",sans-serif;
+    --body:"Source Sans 3","Segoe UI",Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ink:#e8eef4; --paper:#0f1a24; --card:#16232f; --line:#2a3a48; --muted:#9fb0bf;
+      --teal-soft:#12373a; --red-soft:#3d1f1a; --blue-soft:#15293f; --green-soft:#17301b;
+    }
+  }
+  *{box-sizing:border-box;margin:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);background:var(--paper);color:var(--ink);line-height:1.55;font-size:17px}
+  h1,h2,h3{font-family:var(--head);line-height:1.1}
+  a{color:inherit}
+  :focus-visible{outline:3px solid var(--sign);outline-offset:2px}
+
+  /* ---------- header ---------- */
+  header{position:sticky;top:0;z-index:10;background:var(--ink);color:#fff;border-bottom:4px solid var(--sign)}
+  .bar{max-width:1100px;margin:auto;padding:12px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .logo{font-family:var(--head);font-weight:800;font-size:22px;cursor:pointer;display:flex;align-items:center;gap:8px}
+  .logo span{background:var(--sign);color:#12263a;padding:2px 8px;border-radius:6px}
+  nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto;align-items:center}
+  nav button{background:none;border:0;color:#fff;font:inherit;padding:8px 12px;border-radius:8px;cursor:pointer}
+  nav button:hover,nav button.active{background:rgba(255,255,255,.14)}
+  nav .cta{background:var(--sign);color:#12263a;font-weight:600}
+  nav .cta:hover{background:#ffd23f}
+  .bell{position:relative}
+  .bell b{position:absolute;top:0;right:0;background:var(--red);color:#fff;font-size:11px;border-radius:10px;padding:0 6px}
+
+  main{max-width:1100px;margin:auto;padding:28px 20px 60px}
+  .view{display:none}.view.show{display:block}
+
+  /* ---------- hero ---------- */
+  .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:36px;align-items:center;padding:20px 0 40px}
+  .hero h1{font-size:clamp(34px,5.5vw,58px);font-weight:800;letter-spacing:-.02em}
+  .hero p.lead{font-size:19px;color:var(--muted);margin:16px 0 24px;max-width:46ch}
+  .btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:12px 20px;cursor:pointer;background:var(--ink);color:var(--paper)}
+  .btn:hover{filter:brightness(1.15)}
+  .btn.yellow{background:var(--sign);color:#12263a}
+  .btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+  .btn.small{padding:6px 12px;font-size:14px;border-radius:8px}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap}
+
+  /* the ticket: the memorable element */
+  .ticket{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:22px;position:relative;box-shadow:8px 8px 0 var(--sign)}
+  .ticket::before,.ticket::after{content:"";position:absolute;top:96px;width:20px;height:20px;border-radius:50%;background:var(--paper);border:2px solid var(--ink)}
+  .ticket::before{left:-11px;clip-path:inset(0 0 0 50%)}
+  .ticket::after{right:-11px;clip-path:inset(0 50% 0 0)}
+  .ticket .id{font-family:var(--head);font-weight:800;font-size:26px}
+  .ticket small{color:var(--muted)}
+  .ticket hr{border:0;border-top:2px dashed var(--line);margin:18px 0}
+  .steps{list-style:none;padding:0;display:grid;gap:12px}
+  .steps li{display:flex;gap:12px;align-items:center}
+  .dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--ink);flex:none;display:grid;place-items:center;font-size:12px}
+  .steps li.done .dot{background:var(--teal);border-color:var(--teal);color:#fff}
+  .steps li.now .dot{background:var(--sign)}
+  .steps li.todo{color:var(--muted)}
+
+  /* ---------- sections ---------- */
+  h2.sec{font-size:30px;margin:10px 0 18px}
+  .cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+  .cat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;gap:10px;align-items:center;cursor:pointer;text-align:left;font:inherit;color:inherit}
+  .cat:hover{border-color:var(--ink)}
+  .cat i{font-style:normal;font-size:26px}
+  .how{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:8px}
+  .how div{background:var(--card);border-left:6px solid var(--teal);border-radius:10px;padding:16px}
+  .how h3{font-size:20px;margin-bottom:6px}
+
+  /* ---------- forms ---------- */
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;max-width:640px}
+  .panel.wide{max-width:none}
+  label{display:block;font-weight:600;margin:14px 0 6px}
+  input,select,textarea{width:100%;font:inherit;color:inherit;background:var(--paper);border:2px solid var(--line);border-radius:10px;padding:10px 12px}
+  input:focus,select:focus,textarea:focus{border-color:var(--ink);outline:none}
+  textarea{min-height:100px;resize:vertical}
+  .tabs{display:flex;gap:8px;margin-bottom:6px}
+  .tabs button{flex:1;padding:10px;border:2px solid var(--line);background:none;border-radius:10px;font:inherit;font-weight:600;color:inherit;cursor:pointer}
+  .tabs button.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .hint{color:var(--muted);font-size:14px;margin-top:6px}
+  .preview{max-width:100%;max-height:180px;border-radius:10px;margin-top:10px;display:none}
+  .note{background:var(--teal-soft);border-radius:10px;padding:12px 14px;margin-top:14px}
+
+  /* ---------- complaints ---------- */
+  .list{display:grid;gap:14px}
+  .item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;grid-template-columns:1fr auto;gap:8px 16px}
+  .item h3{font-size:19px}
+  .item .meta{color:var(--muted);font-size:15px}
+  .item img{max-width:220px;border-radius:10px;margin-top:10px}
+  .badge{display:inline-block;border-radius:20px;padding:3px 12px;font-size:14px;font-weight:600;white-space:nowrap}
+  .Pending{background:var(--red-soft);color:var(--red)}
+  .Assigned{background:var(--blue-soft);color:var(--blue)}
+  .InProgress{background:#fff1c2;color:#7a5a00}
+  .Resolved{background:var(--green-soft);color:var(--green)}
+  .sinfo{font-size:14px;color:var(--muted);margin-top:6px;max-width:200px;margin-left:auto}
+  .guide{display:grid;gap:10px;max-width:620px}
+  .guide div{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+  .guide .badge{min-width:110px;text-align:center}
+  .timeline{grid-column:1/-1;border-top:1px dashed var(--line);padding-top:10px;font-size:15px;color:var(--muted)}
+  .timeline div{padding:2px 0}
+  .stars button{background:none;border:0;font-size:26px;cursor:pointer;color:#c9c9c9;padding:0 2px}
+  .stars button.on{color:var(--sign)}
+  .empty{text-align:center;color:var(--muted);padding:40px 10px;border:2px dashed var(--line);border-radius:14px}
+
+  /* ---------- admin ---------- */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .stat b{font-family:var(--head);font-size:34px;display:block}
+  .filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:14px}
+  .tablewrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
+  table{width:100%;border-collapse:collapse;min-width:760px}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;font-size:15px}
+  th{background:var(--ink);color:var(--paper);font-family:var(--head)}
+  td select{padding:6px 8px;font-size:14px}
+  .bars{display:grid;gap:8px;margin-top:10px}
+  .barrow{display:grid;grid-template-columns:150px 1fr 30px;gap:10px;align-items:center;font-size:15px}
+  .barrow span.t{height:14px;background:var(--line);border-radius:8px;overflow:hidden}
+  .barrow span.t i{display:block;height:100%;background:var(--teal)}
+
+  /* ---------- toast ---------- */
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:var(--paper);padding:12px 20px;border-radius:10px;transition:transform .3s;z-index:50;border-left:6px solid var(--sign);max-width:90vw}
+  #toast.show{transform:translateX(-50%) translateY(0)}
+  #notifBox{position:absolute;right:20px;top:64px;width:min(340px,90vw);background:var(--card);color:var(--ink);border:2px solid var(--ink);border-radius:12px;padding:12px;display:none;z-index:20;max-height:60vh;overflow:auto}
+  #notifBox p{padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
+  footer{text-align:center;color:var(--muted);padding:24px;font-size:15px}
+
+  @media (max-width:800px){
+    .hero{grid-template-columns:1fr}
+    .filters{grid-template-columns:1fr}
+    .item{grid-template-columns:1fr}
+    .barrow{grid-template-columns:110px 1fr 28px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <div class="logo" onclick="go('home')" role="link" tabindex="0">🏙️ SmartClean <span>CityCare</span></div>
+    <nav id="nav"></nav>
+  </div>
+  <div id="notifBox"></div>
+</header>
+
+<main>
+
+  <!-- HOME -->
+  <section id="home" class="view show">
+    <div class="hero">
+      <div>
+        <h1>See a problem in your city? Report it in a minute.</h1>
+        <p class="lead">Garbage, water supply, streetlights, roads, drainage. Tell us what and where, add a photo, and follow your complaint until it is fixed.</p>
+        <div class="btn-row">
+          <button class="btn yellow" onclick="go('report')">Report a problem</button>
+          <button class="btn ghost" onclick="go('track')">Track a complaint</button>
+        </div>
+      </div>
+      <div class="ticket" aria-label="Example complaint ticket">
+        <small>Example complaint</small>
+        <div class="id">SC-1042</div>
+        <div>Streetlight not working, 4th Cross Road</div>
+        <hr>
+        <ul class="steps">
+          <li class="done"><span class="dot">✓</span> Reported by citizen</li>
+          <li class="done"><span class="dot">✓</span> Assigned to Electricity dept.</li>
+          <li class="now"><span class="dot"></span> Technician on the way</li>
+          <li class="todo"><span class="dot"></span> Resolved and rated</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 class="sec">What can you report?</h2>
+    <div class="cats" id="homeCats"></div>
+
+    <h2 class="sec" style="margin-top:40px">How it works</h2>
+    <div class="how">
+      <div><h3>1. Create an account</h3><p>Register as a citizen with your name and email.</p></div>
+      <div><h3>2. Submit your complaint</h3><p>Pick a category, describe the problem, add the location and a photo.</p></div>
+      <div><h3>3. Get a complaint ID</h3><p>Use it any time to see the current status.</p></div>
+      <div><h3>4. Rate the result</h3><p>When it is resolved, tell us how it went.</p></div>
+    </div>
+
+    <h2 class="sec" style="margin-top:40px">What the statuses mean</h2>
+    <div class="guide">
+      <div><span class="badge Pending">Pending</span> The complaint has been received.</div>
+      <div><span class="badge InProgress">In Progress</span> The cleaning team is working on it.</div>
+      <div><span class="badge Resolved">Resolved</span> The issue has been addressed.</div>
+    </div>
+  </section>
+
+  <!-- AUTH -->
+  <section id="auth" class="view">
+    <div class="panel">
+      <div class="tabs">
+        <button id="tabLogin" class="active" onclick="authTab('login')">Log in</button>
+        <button id="tabReg" onclick="authTab('register')">Register</button>
+      </div>
+      <div id="regOnly" style="display:none">
+        <label for="rName">Full name</label>
+        <input id="rName" autocomplete="name">
+      </div>
+      <label for="aEmail">Email</label>
+      <input id="aEmail" type="email" autocomplete="email">
+      <label for="aPass">Password</label>
+      <input id="aPass" type="password" autocomplete="current-password">
+      <div style="margin-top:18px"><button class="btn" id="authBtn" onclick="submitAuth()">Log in</button></div>
+      <div class="note" id="adminHint"><b>Admin demo login:</b> admin@citycare.com / admin123</div>
+    </div>
+  </section>
+
+  <!-- REPORT -->
+  <section id="report" class="view">
+    <h2 class="sec">Report a civic problem</h2>
+    <div class="panel">
+      <label for="cCat">Category</label>
+      <select id="cCat"></select>
+      <label for="cDesc">What is the problem?</label>
+      <textarea id="cDesc" placeholder="Example: Garbage has not been collected for 4 days near the market."></textarea>
+      <label for="cLoc">Location</label>
+      <input id="cLoc" placeholder="Street, area, landmark">
+      <label for="cImg">Photo (optional)</label>
+      <input id="cImg" type="file" accept="image/*">
+      <img id="imgPrev" class="preview" alt="Selected photo preview">
+      <div style="margin-top:20px"><button class="btn yellow" onclick="submitComplaint()">Submit complaint</button></div>
+    </div>
+  </section>
+
+  <!-- TRACK -->
+  <section id="track" class="view">
+    <h2 class="sec">Track a complaint</h2>
+    <div class="panel">
+      <label for="tId">Complaint ID</label>
+      <input id="tId" placeholder="Example: SC-1001">
+      <div style="margin-top:16px"><button class="btn" onclick="trackComplaint()">Check status</button></div>
+    </div>
+    <div id="trackOut" class="list" style="margin-top:20px;max-width:760px"></div>
+  </section>
+
+  <!-- MY COMPLAINTS -->
+  <section id="mine" class="view">
+    <h2 class="sec">My complaints</h2>
+    <div id="mineList" class="list"></div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="admin" class="view">
+    <h2 class="sec">Admin dashboard</h2>
+    <div class="stats" id="stats"></div>
+
+    <div class="filters">
+      <input id="fSearch" placeholder="Search by ID, text or location" oninput="renderAdmin()" aria-label="Search complaints">
+      <select id="fStatus" onchange="renderAdmin()" aria-label="Filter by status"></select>
+      <select id="fCat" onchange="renderAdmin()" aria-label="Filter by category"></select>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>ID</th><th>Complaint</th><th>Department</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="adminRows"></tbody>
+      </table>
+    </div>
+
+    <div class="panel wide" style="margin-top:24px">
+      <h3>Reports</h3>
+      <p class="hint" id="avgRating"></p>
+      <div class="bars" id="catBars"></div>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn small" onclick="exportCSV()">Download report (CSV)</button>
+        <button class="btn small ghost" onclick="manageUsers()">View registered users</button>
+      </div>
+      <div id="usersOut" class="hint" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>SmartClean – CityCare</footer>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =====================================================
+   SmartClean – CityCare
+   Demo version: data is saved in the browser (localStorage).
+   Later you can replace the save()/load() functions with
+   calls to a PHP or Python backend + MySQL database.
+   ===================================================== */
+
+const CATEGORIES = [
+  {name:"Garbage and waste collection", icon:"🗑️", dept:"Sanitation"},
+  {name:"Water supply",                 icon:"🚰", dept:"Water Board"},
+  {name:"Streetlights",                 icon:"💡", dept:"Electricity"},
+  {name:"Roads and potholes",           icon:"🛣️", dept:"Roads & Works"},
+  {name:"Drainage and sewage",          icon:"🌊", dept:"Drainage"},
+  {name:"Public toilets",               icon:"🚻", dept:"Sanitation"},
+  {name:"Parks and public areas",       icon:"🌳", dept:"Parks"},
+  {name:"Other civic issues",           icon:"📋", dept:"General Office"}
+];
+const DEPARTMENTS = ["Sanitation","Water Board","Electricity","Roads & Works","Drainage","Parks","General Office"];
+const STATUSES = ["Pending","In Progress","Resolved"];
+const STATUS_INFO = {
+  "Pending":     "The complaint has been received.",
+  "In Progress": "The cleaning team is working on it.",
+  "Resolved":    "The issue has been addressed."
+};
+const css = s => s.replace(/\s/g,"");   // "In Progress" -> "InProgress" for CSS class
+
+/* ---------- storage ---------- */
+function load(key, fallback){ try{ return JSON.parse(localStorage.getItem(key)) ?? fallback; }catch(e){ return fallback; } }
+function save(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){ toast("Storage is full. Try a smaller photo."); } }
+
+let users      = load("sc_users", null);
+let complaints = load("sc_complaints", null);
+let notifs     = load("sc_notifs", []);
+let session    = load("sc_session", null);
+
+if(!users){
+  users = [
+    {name:"Admin", email:"admin@citycare.com", pass:"admin123", role:"admin"},
+    {name:"Demo Citizen", email:"citizen@demo.com", pass:"demo123", role:"citizen"}
+  ];
+  save("sc_users", users);
+}
+if(!complaints){
+  const d = new Date().toLocaleString();
+  complaints = [
+    {id:"SC-1001", email:"citizen@demo.com", category:"Streetlights", desc:"Streetlight not working for a week.", location:"4th Cross Road", image:"", status:"In Progress", dept:"Electricity", date:d, rating:0, feedback:"",
+     history:[{t:d, m:"Complaint submitted"},{t:d, m:"Assigned to Electricity"}]},
+    {id:"SC-1002", email:"citizen@demo.com", category:"Roads and potholes", desc:"Large pothole near the bus stop.", location:"Main Road, near bus stop", image:"", status:"Pending", dept:"", date:d, rating:0, feedback:"",
+     history:[{t:d, m:"Complaint submitted"}]}
+  ];
+  save("sc_complaints", complaints);
+}
+
+// older saved data may still use the removed "Assigned" status
+complaints.forEach(c => { if(c.status==="Assigned") c.status="In Progress"; });
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const now = () => new Date().toLocaleString();
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast.id); toast.id=setTimeout(()=>t.classList.remove("show"),3200); }
+function notify(email, msg){ notifs.unshift({email, msg, t:now(), read:false}); save("sc_notifs", notifs); }
+function nextId(){ const nums = complaints.map(c=>parseInt(c.id.split("-")[1])); return "SC-" + (Math.max(1000,...nums)+1); }
+const isAdmin = () => session && session.role === "admin";
+
+/* ---------- navigation ---------- */
+function go(view){
+  if((view==="report"||view==="mine") && !session){ toast("Please log in first."); view="auth"; }
+  if(view==="admin" && !isAdmin()){ toast("Admin access only."); view="auth"; }
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("show"));
+  $(view).classList.add("show");
+  $("notifBox").style.display="none";
+  if(view==="mine") renderMine();
+  if(view==="admin") renderAdmin();
+  renderNav(view);
+  window.scrollTo(0,0);
+}
+function renderNav(active){
+  let h = `<button data-v="home">Home</button><button data-v="track">Track</button>`;
+  if(session && !isAdmin()) h += `<button data-v="mine">My complaints</button>`;
+  if(isAdmin()) h += `<button data-v="admin">Dashboard</button>`;
+  if(session){
+    const n = notifs.filter(x=>x.email===session.email && !x.read).length;
+    h += `<button class="bell" onclick="toggleNotif()" aria-label="Notifications">🔔${n?`<b>${n}</b>`:""}</button>`;
+    if(!isAdmin()) h += `<button class="cta" data-v="report">Report problem</button>`;
+    h += `<button onclick="logout()">Log out (${esc(session.name.split(" ")[0])})</button>`;
+  } else {
+    h += `<button class="cta" data-v="auth">Log in / Register</button>`;
+  }
+  $("nav").innerHTML = h;
+  $("nav").querySelectorAll("[data-v]").forEach(b=>{
+    b.onclick=()=>go(b.dataset.v);
+    if(b.dataset.v===active) b.classList.add("active");
+  });
+}
+function toggleNotif(){
+  const box=$("notifBox");
+  if(box.style.display==="block"){ box.style.display="none"; return; }
+  const mine = notifs.filter(x=>x.email===session.email);
+  box.innerHTML = mine.length ? mine.map(n=>`<p>${esc(n.msg)}<br><small style="color:var(--muted)">${esc(n.t)}</small></p>`).join("") : "<p>No notifications yet.</p>";
+  box.style.display="block";
+  notifs.forEach(n=>{ if(n.email===session.email) n.read=true; });
+  save("sc_notifs", notifs);
+  renderNav(document.querySelector(".view.show").id);
+}
+
+/* ---------- login / register ---------- */
+let mode = "login";
+function authTab(m){
+  mode = m;
+  $("tabLogin").classList.toggle("active", m==="login");
+  $("tabReg").classList.toggle("active", m==="register");
+  $("regOnly").style.display = m==="register" ? "block" : "none";
+  $("authBtn").textContent = m==="register" ? "Create account" : "Log in";
+  $("adminHint").style.display = m==="login" ? "block" : "none";
+}
+function submitAuth(){
+  const email=$("aEmail").value.trim().toLowerCase(), pass=$("aPass").value;
+  if(!email || !pass){ toast("Enter your email and password."); return; }
+  if(mode==="register"){
+    const name=$("rName").value.trim();
+    if(!name){ toast("Enter your full name."); return; }
+    if(pass.length<6){ toast("Password must have at least 6 characters."); return; }
+    if(users.some(u=>u.email===email)){ toast("This email is already registered. Log in instead."); return; }
+    users.push({name,email,pass,role:"citizen"}); save("sc_users", users);
+    toast("Account created. You can log in now."); authTab("login"); return;
+  }
+  const u = users.find(u=>u.email===email && u.pass===pass);
+  if(!u){ toast("Wrong email or password."); return; }
+  session = {name:u.name, email:u.email, role:u.role}; save("sc_session", session);
+  toast("Welcome, " + u.name + "!");
+  $("aPass").value="";
+  go(u.role==="admin" ? "admin" : "home");
+}
+function logout(){ session=null; localStorage.removeItem("sc_session"); toast("You are logged out."); go("home"); }
+
+/* ---------- submit complaint ---------- */
+let imageData = "";
+$("cImg").addEventListener("change", e=>{
+  const f=e.target.files[0]; if(!f){ imageData=""; $("imgPrev").style.display="none"; return; }
+  const r=new FileReader();
+  r.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{   // shrink the photo so it fits in browser storage
+      const max=600, s=Math.min(1,max/Math.max(img.width,img.height));
+      const c=document.createElement("canvas"); c.width=img.width*s; c.height=img.height*s;
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+      imageData=c.toDataURL("image/jpeg",.7);
+      $("imgPrev").src=imageData; $("imgPrev").style.display="block";
+    };
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(f);
+});
+function submitComplaint(){
+  const category=$("cCat").value, desc=$("cDesc").value.trim(), location=$("cLoc").value.trim();
+  if(!desc || !location){ toast("Add a description and the location."); return; }
+  const c = {id:nextId(), email:session.email, category, desc, location, image:imageData,
+             status:"Pending", dept:"", date:now(), rating:0, feedback:"", history:[{t:now(), m:"Complaint submitted"}]};
+  complaints.unshift(c); save("sc_complaints", complaints);
+  users.filter(u=>u.role==="admin").forEach(a=>notify(a.email, `New complaint ${c.id}: ${category}`));
+  notify(session.email, `Your complaint ${c.id} was submitted.`);
+  $("cDesc").value=""; $("cLoc").value=""; $("cImg").value=""; imageData=""; $("imgPrev").style.display="none";
+  toast("Submitted. Your complaint ID is " + c.id);
+  go("mine");
+}
+
+/* ---------- show a complaint card ---------- */
+function card(c, opts={}){
+  const tl = c.history.map(h=>`<div>${esc(h.t)} – ${esc(h.m)}</div>`).join("");
+  let extra = "";
+  if(opts.rate && c.status==="Resolved"){
+    if(c.rating){ extra = `<div class="timeline">Your rating: ${"★".repeat(c.rating)}${"☆".repeat(5-c.rating)}${c.feedback?` – “${esc(c.feedback)}”`:""}</div>`; }
+    else {
+      extra = `<div class="timeline"><b>How did we do?</b>
+        <div class="stars" data-id="${c.id}">${[1,2,3,4,5].map(n=>`<button onclick="setStar(this,${n})" aria-label="${n} stars">★</button>`).join("")}</div>
+        <input id="fb-${c.id}" placeholder="Write a short comment (optional)" style="margin:6px 0">
+        <button class="btn small" onclick="sendRating('${c.id}')">Send feedback</button></div>`;
+    }
+  }
+  return `<article class="item">
+    <div>
+      <h3>${esc(c.id)} · ${esc(c.category)}</h3>
+      <div class="meta">${esc(c.location)} · ${esc(c.date)}${c.dept?` · ${esc(c.dept)}`:""}</div>
+      <p style="margin-top:8px">${esc(c.desc)}</p>
+      ${c.image?`<img src="${c.image}" alt="Photo of the problem">`:""}
+    </div>
+    <div style="text-align:right"><span class="badge ${css(c.status)}">${esc(c.status)}</span>
+      <div class="sinfo">${esc(STATUS_INFO[c.status])}</div></div>
+    <div class="timeline">${tl}</div>
+    ${extra}
+  </article>`;
+}
+let pickedStar = 0;
+function setStar(btn,n){ pickedStar=n; [...btn.parentNode.children].forEach((b,i)=>b.classList.toggle("on", i<n)); }
+function sendRating(id){
+  if(!pickedStar){ toast("Tap the stars to rate."); return; }
+  const c=complaints.find(x=>x.id===id);
+  c.rating=pickedStar; c.feedback=$("fb-"+id).value.trim(); pickedStar=0;
+  c.history.push({t:now(), m:`Citizen rated ${c.rating}/5`});
+  save("sc_complaints", complaints); toast("Thank you for your feedback!"); renderMine();
+}
+
+function renderMine(){
+  const mine = complaints.filter(c=>c.email===session.email);
+  $("mineList").innerHTML = mine.length ? mine.map(c=>card(c,{rate:true})).join("")
+    : `<div class="empty">You have not reported anything yet.<br><br><button class="btn yellow" onclick="go('report')">Report your first problem</button></div>`;
+}
+function trackComplaint(){
+  const id=$("tId").value.trim().toUpperCase();
+  const c=complaints.find(x=>x.id===id);
+  $("trackOut").innerHTML = c ? card(c) : `<div class="empty">No complaint found with ID “${esc(id)}”. Check the ID and try again.</div>`;
+}
+
+/* ---------- admin ---------- */
+function renderAdmin(){
+  const total=complaints.length, by=s=>complaints.filter(c=>c.status===s).length;
+  $("stats").innerHTML = `
+    <div class="stat"><b>${total}</b>Total complaints</div>
+    <div class="stat"><b>${by("Pending")}</b>Pending</div>
+    <div class="stat"><b>${by("In Progress")}</b>In progress</div>
+    <div class="stat"><b>${by("Resolved")}</b>Resolved</div>`;
+
+  const q=$("fSearch").value.toLowerCase(), fs=$("fStatus").value, fc=$("fCat").value;
+  const rows = complaints.filter(c=>
+    (!fs||fs==="All"||c.status===fs) && (!fc||fc==="All"||c.category===fc) &&
+    (c.id+c.desc+c.location+c.category).toLowerCase().includes(q));
+  $("adminRows").innerHTML = rows.length ? rows.map(c=>`
+    <tr>
+      <td><b>${esc(c.id)}</b></td>
+      <td>${esc(c.category)}<br><span style="color:var(--muted)">${esc(c.desc)}<br>📍 ${esc(c.location)}</span>
+        ${c.image?`<br><img src="${c.image}" alt="" style="max-width:120px;border-radius:8px;margin-top:6px">`:""}</td>
+      <td><select onchange="assign('${c.id}',this.value)" aria-label="Assign department">
+        <option value="">Not assigned</option>
+        ${DEPARTMENTS.map(d=>`<option ${c.dept===d?"selected":""}>${d}</option>`).join("")}</select></td>
+      <td><select onchange="setStatus('${c.id}',this.value)" aria-label="Update status">
+        ${STATUSES.map(s=>`<option ${c.status===s?"selected":""}>${s}</option>`).join("")}</select>
+        <div class="sinfo" style="margin-left:0">${esc(STATUS_INFO[c.status])}</div></td>
+      <td>${c.status!=="Resolved"?`<button class="btn small" onclick="setStatus('${c.id}','Resolved')">Mark resolved</button>`:"✔ Done"}</td>
+    </tr>`).join("") : `<tr><td colspan="5"><div class="empty" style="border:0">No complaints match your search.</div></td></tr>`;
+
+  const max=Math.max(1,...CATEGORIES.map(k=>complaints.filter(c=>c.category===k.name).length));
+  $("catBars").innerHTML = CATEGORIES.map(k=>{
+    const n=complaints.filter(c=>c.category===k.name).length;
+    return `<div class="barrow"><span>${k.icon} ${k.name.split(" ")[0]}</span><span class="t"><i style="width:${n/max*100}%"></i></span><b>${n}</b></div>`;
+  }).join("");
+  const rated=complaints.filter(c=>c.rating);
+  $("avgRating").textContent = rated.length ? `Average citizen rating: ${(rated.reduce((a,c)=>a+c.rating,0)/rated.length).toFixed(1)} / 5 (${rated.length} ratings)` : "No ratings yet.";
+}
+function assign(id, dept){
+  const c=complaints.find(x=>x.id===id); c.dept=dept;
+  if(dept){ if(c.status==="Pending") c.status="In Progress"; c.history.push({t:now(), m:`Assigned to ${dept}`}); notify(c.email, `Complaint ${id} was assigned to ${dept} and is now In Progress.`); }
+  save("sc_complaints", complaints); toast("Department updated."); renderAdmin();
+}
+function setStatus(id, status){
+  const c=complaints.find(x=>x.id===id); c.status=status;
+  c.history.push({t:now(), m:`Status changed to ${status}`});
+  notify(c.email, `Complaint ${id} is now: ${status}.`);
+  save("sc_complaints", complaints); toast(`${id} marked as ${status}.`); renderAdmin();
+}
+function manageUsers(){
+  const cit=users.filter(u=>u.role==="citizen");
+  $("usersOut").innerHTML = "<b>Registered citizens:</b> " + (cit.map(u=>esc(u.name)+" ("+esc(u.email)+")").join(", ") || "none");
+}
+function exportCSV(){
+  const rows=[["ID","Category","Description","Location","Department","Status","Date","Rating"]]
+    .concat(complaints.map(c=>[c.id,c.category,c.desc,c.location,c.dept,c.status,c.date,c.rating]));
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download="complaint-report.csv"; a.click();
+}
+
+/* ---------- start ---------- */
+$("homeCats").innerHTML = CATEGORIES.map(k=>`<button class="cat" onclick="pickCat('${k.name}')"><i>${k.icon}</i>${k.name}</button>`).join("");
+$("cCat").innerHTML = CATEGORIES.map(k=>`<option>${k.name}</option>`).join("");
+$("fStatus").innerHTML = ["All",...STATUSES].map(s=>`<option>${s}</option>`).join("");
+$("fCat").innerHTML = ["All",...CATEGORIES.map(k=>k.name)].map(s=>`<option>${s}</option>`).join("");
+function pickCat(name){ if(!session){ toast("Please log in first."); go("auth"); return; } go("report"); $("cCat").value=name; }
+renderNav("home");
+</script>
+</body>
+</html>
